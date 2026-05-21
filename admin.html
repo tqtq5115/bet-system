@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>管理後台</h2>
+    賠率: <input id="odds" value="0.95"> <button onclick="setOdds()">設定</button>
+    <table border="1" style="width:100%">
+        <thead><tr><th>帳號</th><th>IP</th><th>金額</th><th>時間</th></tr></thead>
+        <tbody id="list"></tbody>
+    </table>
+    <script>
+        const URL = "http://192.168.1.102:5000";
+        async function setOdds() {
+            await fetch(URL+"/api/state", {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({odds_rules: [{odds: parseFloat(document.getElementById('odds').value)}]})});
+            alert("賠率更新");
+        }
+        setInterval(async () => {
+            const d = await (await fetch(URL+"/api/state")).json();
+            document.getElementById('list').innerHTML = d.bets.map(b => 
+                `<tr><td>${b.user}</td><td>${b.ip}</td><td>${b.amount}</td><td>${b.time}</td></tr>`).join('');
+        }, 2000);
+    </script>
+</body>
+</html>

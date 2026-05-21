@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h3>開帳號: <input id="new-id" placeholder="輸入帳號"><button onclick="reg()">註冊</button></h3>
+    <h3>登入/下注: <input id="uid" value="A101"> | 餘額: <span id="bal">1000</span></h3>
+    <input type="number" id="amt" step="100" placeholder="金額(百元)">
+    <button onclick="bet()">下注</button>
+    <script>
+        const URL = "http://192.168.1.102:5000";
+        async function reg() {
+            await fetch(URL+"/api/register", {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:document.getElementById('new-id').value})});
+            alert("註冊完畢");
+        }
+        async function bet() {
+            const res = await fetch(URL+"/api/bet", {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user:document.getElementById('uid').value, amount:parseInt(document.getElementById('amt').value), selection:"買", time:new Date().toLocaleTimeString()})});
+            alert((await res.json()).status);
+        }
+        setInterval(async () => {
+            const d = await (await fetch(URL+"/api/state")).json();
+            const u = d.users.find(x => x.id === document.getElementById('uid').value);
+            if(u) document.getElementById('bal').innerText = u.bal;
+        }, 2000);
+    </script>
+</body>
+</html>
